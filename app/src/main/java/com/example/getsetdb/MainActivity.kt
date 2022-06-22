@@ -19,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : AppCompatActivity() {
     private val nameLiveData = MutableLiveData<String>()
+    private val passLiveData = MutableLiveData<String>()
     private var logged=false
     private var getData=false
     private lateinit var database: DatabaseReference
@@ -29,8 +30,13 @@ class MainActivity : AppCompatActivity() {
     private val isValidLiveData = MediatorLiveData<Boolean>().apply {
         this.value=false
         addSource(nameLiveData){ name->
+            val pass = passLiveData.value
+            this.value=validateForm(name, pass)
+        }
+
+        addSource(passLiveData){ pass->
             val name = nameLiveData.value
-            this.value=validateForm(name)
+            this.value=validateForm(name, pass)
         }
     }
 
@@ -39,12 +45,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val nameLayout=findViewById<TextInputLayout>(R.id.name)
+        val passLayout=findViewById<TextInputLayout>(R.id.pass)
         val logIn=findViewById<Button>(R.id.login)
 
         database = FirebaseDatabase.getInstance(ref).getReference("Users")
 
         nameLayout.editText?.doOnTextChanged{text,_,_,_ ->
             nameLiveData.value=text?.toString()
+        }
+
+        passLayout.editText?.doOnTextChanged{text,_,_,_ ->
+            passLiveData.value=text?.toString()
         }
 
         isValidLiveData.observe(this){isValid->
@@ -62,9 +73,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private  fun validateForm(name: String?): Boolean{
+    private  fun validateForm(name: String?, pass: String?): Boolean{
         val isValidName=name!=null && name.isNotBlank()
-        return isValidName
+        val isValidPass=pass!=null && pass.isNotBlank() && pass.length>=6
+        return isValidName && isValidPass
     }
 
     private fun loggedIn(id: String?): Boolean {
