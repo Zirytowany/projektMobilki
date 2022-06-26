@@ -41,7 +41,7 @@ class ServiceBackground: Service() {
         createNottificationChannel()
         val notificationIntent = Intent(this, MainScreen::class.java)
         val pendingIntent= PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        val notification = NotificationCompat.Builder(this, channel_id).setContentTitle("Foreground Service")
+        val notification = NotificationCompat.Builder(this, channel_id).setContentTitle("GetSetDB")
             .setContentText(input)
             .setSmallIcon(androidx.drawerlayout.R.drawable.notification_icon_background)
             .setContentIntent(pendingIntent)

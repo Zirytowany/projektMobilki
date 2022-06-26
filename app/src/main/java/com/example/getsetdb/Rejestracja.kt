@@ -84,8 +84,15 @@ class Rejestracja : AppCompatActivity() {
                     data = it.value as HashMap<String, String>
                     Log.d(TAG, data.toString())
                 }
-                if(data.isEmpty()){
-                    Log.d(TAG, data.toString())
+                if(data.isNullOrEmpty()){
+                    val user=User(nameLiveData.value.toString(), passLiveData.value.toString())
+                    database.child(nameLiveData.value.toString()).setValue(user).addOnSuccessListener {
+                        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener{
+                        Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show()
+                    }
+                } else{
+                    Toast.makeText(this, "Istnieje już taki użytkownik", Toast.LENGTH_SHORT).show()
                 }
             }
         }

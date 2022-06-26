@@ -47,7 +47,7 @@ class MainScreen : AppCompatActivity(), LocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_screen)
-        ServiceBackground.startService(this, "Foreground Service is running...")
+        ServiceBackground.startService(this, "GesSetDB działa w tle...")
 
         btnSendData=findViewById(R.id.btnSendData)
         fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this)
@@ -70,7 +70,7 @@ class MainScreen : AppCompatActivity(), LocationListener {
             Log.d("TAG", currentLocation.toString())
             val user = User(id, szer, dlug)
             if(isOnline(this))
-                Toast.makeText(this, "jest internet", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Jest połaczenie z  Internetem", Toast.LENGTH_SHORT).show()
             database.child(id).setValue(user).addOnSuccessListener {
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
                 database.child(id).get().addOnSuccessListener {
