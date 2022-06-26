@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GetSetDB">
         <activity
+            android:name=".Rejestracja"
+            android:exported="false" />
+        <activity
             android:name=".MainScreen"
             android:exported="false" />
         <activity
@@ -30,8 +33,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name=".ServiceBackground" />
-        <service android:name=".SendSMS"/>
+        <service android:name=".SendSMS" />
     </application>
 
 </manifest>

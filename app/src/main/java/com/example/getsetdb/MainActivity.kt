@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         val nameLayout=findViewById<TextInputLayout>(R.id.name)
         val passLayout=findViewById<TextInputLayout>(R.id.pass)
         val logIn=findViewById<Button>(R.id.login)
+        val rejestr=findViewById<Button>(R.id.restr)
 
         database = FirebaseDatabase.getInstance(ref).getReference("Users")
 
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         logIn.setOnClickListener{
-            if(loggedIn(nameLiveData.value) || logged) {
+            if(loggedIn(nameLiveData.value, passLiveData.value) || logged) {
                 Toast.makeText(this, "Zalogowano", Toast.LENGTH_SHORT).show()
                 logged=true
                 val intent= Intent(this, MainScreen::class.java)
@@ -71,6 +72,8 @@ class MainActivity : AppCompatActivity() {
             }else
                 Toast.makeText(this, "Nie znaleziono identyfikatora lub nie ma połączenia z internetem", Toast.LENGTH_SHORT).show()
         }
+
+        rejestr.setOnClickListener {  }
     }
 
     private  fun validateForm(name: String?, pass: String?): Boolean{
@@ -79,19 +82,23 @@ class MainActivity : AppCompatActivity() {
         return isValidName && isValidPass
     }
 
-    private fun loggedIn(id: String?): Boolean {
+    private fun loggedIn(id: String?, pass: String?): Boolean {
         if(isOnline(this)){
             if (id != null) {
                 database.child(id).get().addOnSuccessListener {
                     login = it.value as HashMap<String, String>
+                    Log.d(TAG, login.toString())
                 }
-                while(getData){
-                    if(login.containsValue(id)){
+                login.forEach(){
+                    if(login.get("id").toString()==id && login.get("password").toString()==pass){
+                        Log.d(TAG, "pass")
                         getData=true
                     }
                 }
-                getData=false
-                return true
+                if(getData){
+                    getData=false
+                    return true
+                }
             }
         }
         return false
