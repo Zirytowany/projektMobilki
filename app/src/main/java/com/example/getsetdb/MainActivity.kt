@@ -73,7 +73,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Nie znaleziono identyfikatora lub nie ma połączenia z internetem", Toast.LENGTH_SHORT).show()
         }
 
-        rejestr.setOnClickListener {  }
+        rejestr.setOnClickListener {
+            val intent= Intent(this, Rejestracja::class.java)
+            startActivity(intent)
+        }
     }
 
     private  fun validateForm(name: String?, pass: String?): Boolean{

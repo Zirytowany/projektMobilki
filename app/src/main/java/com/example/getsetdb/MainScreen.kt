@@ -83,11 +83,11 @@ class MainScreen : AppCompatActivity(), LocationListener {
             }
         }
 
-        locationRequest=LocationRequest.create()?.apply {
+        locationRequest= LocationRequest.create()?.apply {
             interval = 1000
             fastestInterval = 500
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
+        }!!
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
