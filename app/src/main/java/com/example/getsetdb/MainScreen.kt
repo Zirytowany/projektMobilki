@@ -1,5 +1,6 @@
 package com.example.getsetdb
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -28,8 +29,6 @@ import com.google.firebase.database.FirebaseDatabase
 import java.util.concurrent.TimeUnit
 
 class MainScreen : AppCompatActivity(), LocationListener {
-    private lateinit var btnStartService: Button
-    private lateinit var btnStopService: Button
     private lateinit var btnSendData: Button
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var handler: Handler = Handler()
@@ -41,8 +40,8 @@ class MainScreen : AppCompatActivity(), LocationListener {
     private lateinit var database: DatabaseReference
     private var ref="https://getsetdb-default-rtdb.europe-west1.firebasedatabase.app"
     private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
     private var currentLocation: Location? = null
+    private var PERMISSION_REQUEST_ACCESS_LOCATION=100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +64,6 @@ class MainScreen : AppCompatActivity(), LocationListener {
             }
             sendSMS("796851896", "szerokość: "+szer+" długość: "+dlug)
             val id="test"
-            szer=""+currentLocation?.latitude
-            dlug=""+currentLocation?.longitude
             Log.d("TAG", currentLocation.toString())
             val user = User(id, szer, dlug)
             if(isOnline(this))
@@ -82,22 +79,6 @@ class MainScreen : AppCompatActivity(), LocationListener {
                 Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show()
             }
         }
-
-        locationRequest= LocationRequest.create()?.apply {
-            interval = 1000
-            fastestInterval = 500
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }!!
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                currentLocation = locationResult.lastLocation
-                Log.d("TAG", currentLocation.toString())
-            }
-        }
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 
     }
 
@@ -173,6 +154,27 @@ class MainScreen : AppCompatActivity(), LocationListener {
             }
         }else{
             requestPermission()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getNewLocation(){
+        locationRequest= LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 0
+        locationRequest.fastestInterval=0
+        locationRequest.numUpdates = 2
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,locationCallback, Looper.myLooper()!!
+        )
+    }
+
+    private val locationCallback = object : LocationCallback(){
+        override fun onLocationResult(p0: LocationResult) {
+            //super.onLocationResult(p0)
+            var lastLocation: Location? = p0.lastLocation
+            szer=""+ lastLocation!!.latitude
+            dlug=""+lastLocation!!.longitude
         }
     }
 
