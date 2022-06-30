@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         database = FirebaseDatabase.getInstance(ref).getReference("Users")
 
+
         nameLayout.editText?.doOnTextChanged{text,_,_,_ ->
             nameLiveData.value=text?.toString()
         }
@@ -118,11 +119,15 @@ class MainActivity : AppCompatActivity() {
                         Log.d(TAG, "pass")
                         getData=true
                     }
+
+
                 }
-                if(getData){
+                while(!getData){
                     getData=false
                     return true
                 }
+            }else{
+                return false
             }
         }
         return false
