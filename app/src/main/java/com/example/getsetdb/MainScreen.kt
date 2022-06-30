@@ -42,6 +42,8 @@ class MainScreen : AppCompatActivity(), LocationListener {
     private lateinit var locationRequest: LocationRequest
     private var currentLocation: Location? = null
     private var PERMISSION_REQUEST_ACCESS_LOCATION=100
+    private var login: HashMap<String, String>? = null
+    private var id: String?=""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +53,13 @@ class MainScreen : AppCompatActivity(), LocationListener {
         btnSendData=findViewById(R.id.btnSendData)
         fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this)
         database = FirebaseDatabase.getInstance(ref).getReference("Users")
+
+            id=intent.getStringExtra("id").toString()
+
+            database.child(id!!).get().addOnSuccessListener {
+                login = it.value as HashMap<String, String>
+                Log.d(TAG, login.toString())
+            }
 
         if(ActivityCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.SEND_SMS),111)
@@ -63,21 +72,7 @@ class MainScreen : AppCompatActivity(), LocationListener {
                 getCurrentLocation()
             }
             sendSMS("796851896", "szerokość: "+szer+" długość: "+dlug)
-            val id="test"
-            Log.d("TAG", currentLocation.toString())
-            val user = User(id, szer, dlug)
-            if(isOnline(this))
-                Toast.makeText(this, "Jest połaczenie z  Internetem", Toast.LENGTH_SHORT).show()
-            database.child(id).setValue(user).addOnSuccessListener {
-                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
-                database.child(id).get().addOnSuccessListener {
-                    Log.d("TAG", "got value ${it.value}")
-                }.addOnFailureListener{
-                    Log.d("TAG", "error")
-                }
-            }.addOnFailureListener{
-                Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show()
-            }
+            sendGPS(id!!)
         }
 
     }
@@ -86,21 +81,12 @@ class MainScreen : AppCompatActivity(), LocationListener {
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode== KeyEvent.KEYCODE_VOLUME_DOWN){
-            do {
+            if(szer=="" && dlug==""){
                 Log.d(TAG, "NULL RECEIVED")
                 getCurrentLocation()
-            }while(szer!="" && dlug!="")
-
-            sendSMS("796851896", "szerokość: "+szer+" długość: "+dlug)
-
-            val id="test"
-
-            val user = User(id, szer, dlug)
-            database.child(id).setValue(user).addOnSuccessListener {
-                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
-            }.addOnFailureListener{
-                Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show()
             }
+            sendSMS("796851896", "szerokość: "+szer+" długość: "+dlug)
+            sendGPS(id!!)
             return true
         }
         return super.onKeyLongPress(keyCode, event)
@@ -141,6 +127,7 @@ class MainScreen : AppCompatActivity(), LocationListener {
                         task-> val location: Location?=task.result
                     if(location==null){
                         //Toast.makeText(this, "Null Received", Toast.LENGTH_LONG).show()
+                        getNewLocation()
                     }else{
                         //Toast.makeText(this, "Get Success", Toast.LENGTH_LONG).show()
                         szer=""+location.latitude
@@ -159,7 +146,6 @@ class MainScreen : AppCompatActivity(), LocationListener {
 
     @SuppressLint("MissingPermission")
     private fun getNewLocation(){
-        locationRequest= LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 0
         locationRequest.fastestInterval=0
@@ -270,5 +256,23 @@ class MainScreen : AppCompatActivity(), LocationListener {
                 return true
         }
         return false
+    }
+
+    private fun sendGPS( id:String, ){
+        val pass = login?.get("password").toString()
+        Log.d("TAG", currentLocation.toString())
+        val user = User(id,pass, szer, dlug)
+        if(isOnline(this))
+            Toast.makeText(this, "Jest połaczenie z  Internetem", Toast.LENGTH_SHORT).show()
+        database.child(id).setValue(user).addOnSuccessListener {
+            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
+            database.child(id).get().addOnSuccessListener {
+                Log.d("TAG", "got value ${it.value}")
+            }.addOnFailureListener{
+                Log.d("TAG", "error")
+            }
+        }.addOnFailureListener{
+            Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show()
+        }
     }
 }

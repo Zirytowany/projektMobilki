@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Zalogowano", Toast.LENGTH_SHORT).show()
                 logged=true
                 val intent= Intent(this, MainScreen::class.java)
+                intent.putExtra("id", nameLiveData.value.toString())
                 startActivity(intent)
             }else
                 Toast.makeText(this, "Nie znaleziono identyfikatora lub nie ma połączenia z internetem", Toast.LENGTH_SHORT).show()
