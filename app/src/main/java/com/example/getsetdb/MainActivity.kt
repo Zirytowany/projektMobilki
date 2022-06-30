@@ -2,6 +2,8 @@ package com.example.getsetdb
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -10,6 +12,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private  var ref="https://getsetdb-default-rtdb.europe-west1.firebasedatabase.app"
     private var login: HashMap<String, String> = HashMap<String, String>()
+    private var PERMISSION_REQUEST_ACCESS_LOCATION=100
     val TAG="Logowanie"
 
     private val isValidLiveData = MediatorLiveData<Boolean>().apply {
@@ -61,6 +65,22 @@ class MainActivity : AppCompatActivity() {
 
         isValidLiveData.observe(this){isValid->
             logIn.isEnabled=isValid
+        }
+
+        if(checkPermissions()) {
+            if (isLocationEnabled()) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestPermission()
+                    return
+                }
+            }
         }
 
         logIn.setOnClickListener{
@@ -130,6 +150,29 @@ class MainActivity : AppCompatActivity() {
             val activeNetworkInfo=connectiviManager.activeNetworkInfo
             if(activeNetworkInfo != null && activeNetworkInfo.isConnected)
                 return true
+        }
+        return false
+    }
+
+    private fun isLocationEnabled():Boolean{
+        val locationManager: LocationManager =getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_LOCATION
+        )
+    }
+
+    private fun checkPermissions(): Boolean{
+        if(ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED&&
+            ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+            return true
         }
         return false
     }

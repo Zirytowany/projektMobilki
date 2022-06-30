@@ -157,7 +157,6 @@ class MainScreen : AppCompatActivity(), LocationListener {
 
     private val locationCallback = object : LocationCallback(){
         override fun onLocationResult(p0: LocationResult) {
-            //super.onLocationResult(p0)
             var lastLocation: Location? = p0.lastLocation
             szer=""+ lastLocation!!.latitude
             dlug=""+lastLocation!!.longitude
@@ -180,10 +179,6 @@ class MainScreen : AppCompatActivity(), LocationListener {
             this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_LOCATION
         )
-    }
-
-    companion object{
-        private const val PERMISSION_REQUEST_ACCESS_LOCATION=100
     }
 
     private fun checkPermissions(): Boolean{
